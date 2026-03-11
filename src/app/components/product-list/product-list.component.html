@@ -1,0 +1,57 @@
+<div class="products-container">
+  <div class="products-header">
+    <h1>Products</h1>
+    
+    <div class="search-filter">
+      <div class="search-box">
+        <span class="material-icons search-icon">search</span>
+        <input
+          type="text"
+          placeholder="Search products..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="search()"
+        />
+      </div>
+
+      <div class="category-filter">
+        <select [(ngModel)]="selectedCategory" (ngModelChange)="filterByCategory($event)">
+          <option *ngFor="let category of categories" [value]="category">
+            {{ category }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading products...</p>
+  </div>
+
+  <div *ngIf="!isLoading && filteredProducts.length === 0" class="no-products">
+    <span class="material-icons">inventory_2</span>
+    <p>No products found</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="products-grid">
+    <div *ngFor="let product of filteredProducts" class="product-card">
+      <div class="product-image">
+        <img [src]="product.imageUrl" [alt]="product.name" (error)="product.imageUrl = 'https://via.placeholder.com/300?text=No+Image'">
+      </div>
+      <div class="product-info">
+        <span class="product-category">{{ product.category }}</span>
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-description">{{ product.description }}</p>
+        <div class="product-footer">
+          <span class="product-price">${{ product.price.toFixed(2) }}</span>
+          <div class="product-actions">
+            <a [routerLink]="['/products', product.id]" class="btn btn-outline">Details</a>
+            <button class="btn btn-primary" (click)="addToCart(product)">
+              <span class="material-icons">add_shopping_cart</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

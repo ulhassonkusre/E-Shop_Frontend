@@ -1,0 +1,66 @@
+<div class="cart-container">
+  <h1>Shopping Cart</h1>
+
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading your cart...</p>
+  </div>
+
+  <div *ngIf="!isLoading && (!cart || cart.items.length === 0)" class="empty-cart">
+    <span class="material-icons">shopping_cart</span>
+    <h2>Your cart is empty</h2>
+    <p>Looks like you haven't added anything to your cart yet.</p>
+    <a routerLink="/products" class="btn btn-primary">Start Shopping</a>
+  </div>
+
+  <div *ngIf="!isLoading && cart && cart.items.length > 0" class="cart-content">
+    <div class="cart-items">
+      <div class="cart-header">
+        <span>Product</span>
+        <span>Price</span>
+        <span>Quantity</span>
+        <span>Total</span>
+        <span></span>
+      </div>
+
+      <div *ngFor="let item of cart.items" class="cart-item">
+        <div class="item-info">
+          <img [src]="item.productImage" [alt]="item.productName">
+          <span class="item-name">{{ item.productName }}</span>
+        </div>
+        <span class="item-price">${{ item.price.toFixed(2) }}</span>
+        <div class="item-quantity">
+          <button (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">
+            <span class="material-icons">remove</span>
+          </button>
+          <span>{{ item.quantity }}</span>
+          <button (click)="updateQuantity(item, item.quantity + 1)">
+            <span class="material-icons">add</span>
+          </button>
+        </div>
+        <span class="item-total">${{ item.totalPrice.toFixed(2) }}</span>
+        <button class="btn-remove" (click)="removeItem(item.id)">
+          <span class="material-icons">delete</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="cart-summary">
+      <h3>Order Summary</h3>
+      <div class="summary-row">
+        <span>Subtotal ({{ cart.totalItems }} items)</span>
+        <span>${{ getTotal().toFixed(2) }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span>Free</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>${{ getTotal().toFixed(2) }}</span>
+      </div>
+      <button class="btn btn-primary btn-checkout">Proceed to Checkout</button>
+      <button class="btn btn-outline btn-clear-cart" (click)="clearCart()">Clear Cart</button>
+    </div>
+  </div>
+</div>
