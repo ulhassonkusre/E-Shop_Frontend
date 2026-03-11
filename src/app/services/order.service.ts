@@ -74,7 +74,18 @@ export class OrderService {
    * Create a new order
    */
   createOrder(shippingInfo: ShippingInfo): Observable<Order> {
-    return this.http.post<Order>(this.apiUrl, shippingInfo, { headers: this.getHeaders() });
+    // Map camelCase to PascalCase for backend
+    const orderData = {
+      ShippingFullName: shippingInfo.fullName,
+      ShippingEmail: shippingInfo.email,
+      ShippingPhone: shippingInfo.phone,
+      ShippingAddress: shippingInfo.address,
+      ShippingCity: shippingInfo.city,
+      ShippingState: shippingInfo.state,
+      ShippingZipCode: shippingInfo.zipCode,
+      ShippingCountry: shippingInfo.country
+    };
+    return this.http.post<Order>(this.apiUrl, orderData, { headers: this.getHeaders() });
   }
 
   /**

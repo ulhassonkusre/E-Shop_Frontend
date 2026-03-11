@@ -8,7 +8,7 @@ import { ToastService } from '../../services/toast.service';
   imports: [CommonModule],
   template: `
     <div class="toast-container">
-      <div *ngFor="let toast of toasts" class="toast toast-{{ toast.type }}" [@toastAnimation]>
+      <div *ngFor="let toast of toasts" class="toast toast-{{ toast.type }}">
         <span class="material-icons toast-icon">{{ getIcon(toast.type) }}</span>
         <span class="toast-message">{{ toast.message }}</span>
         <button class="toast-close" (click)="remove(toast.id)">

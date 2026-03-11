@@ -77,7 +77,7 @@ export class ProductDetailsComponent implements OnInit {
   toggleWatchlist(product: Product): void {
     const productName = product.name || 'Product';
     const wasInWishlist = this.wishlistService.isInWishlist(product.id);
-    
+
     this.wishlistService.toggleWishlist(product).subscribe({
       next: (success) => {
         if (success) {
@@ -92,5 +92,9 @@ export class ProductDetailsComponent implements OnInit {
         this.toastService.error('Failed to update watchlist');
       }
     });
+  }
+
+  handleImageError(event: any): void {
+    event.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="500" height="400" viewBox="0 0 500 400"%3E%3Crect fill="%23e0e0e0" width="500" height="400"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="20" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
   }
 }

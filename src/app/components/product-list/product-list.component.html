@@ -34,9 +34,9 @@
   </div>
 
   <div *ngIf="!isLoading" class="products-grid">
-    <div *ngFor="let product of filteredProducts" class="product-card">
+    <div *ngFor="let product of filteredProducts; trackBy: trackByProductId" class="product-card">
       <div class="product-image">
-        <img [src]="product.imageUrl" [alt]="product.name" (error)="product.imageUrl = 'https://via.placeholder.com/300?text=No+Image'">
+        <img [src]="product.imageUrl || 'assets/placeholder.png'" [alt]="product.name" loading="lazy" (error)="handleImageError($event, product)">
         <button 
           class="watchlist-btn" 
           [class.active]="wishlistService.isInWishlist(product.id)"

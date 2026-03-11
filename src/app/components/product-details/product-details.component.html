@@ -11,7 +11,7 @@
 
   <div *ngIf="!isLoading && product" class="details-content">
     <div class="product-image-section">
-      <img [src]="product.imageUrl" [alt]="product.name" (error)="product.imageUrl = 'https://via.placeholder.com/500?text=No+Image'">
+      <img [src]="product.imageUrl || 'assets/placeholder.png'" [alt]="product.name" (error)="handleImageError($event)">
       <button 
         class="watchlist-btn" 
         [class.active]="wishlistService.isInWishlist(product.id)"

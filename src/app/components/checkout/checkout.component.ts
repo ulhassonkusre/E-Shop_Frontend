@@ -83,11 +83,23 @@ export class CheckoutComponent implements OnInit {
       error: (err) => {
         this.isSubmitting = false;
         console.error('Order error:', err);
-        if (err.status === 400) {
-          this.toastService.error(err.error || 'Failed to place order');
-        } else {
-          this.toastService.error('Failed to place order. Please try again.');
+        console.error('Error details:', err.error);
+        
+        let errorMessage = 'Failed to place order. Please try again.';
+        
+        if (err.status === 400 && err.error) {
+          // Handle validation errors
+          if (typeof err.error === 'object') {
+            const errors = Object.values(err.error).flat();
+            errorMessage = errors.join(' ');
+          } else if (typeof err.error === 'string') {
+            errorMessage = err.error;
+          } else if (err.error.message) {
+            errorMessage = err.error.message;
+          }
         }
+        
+        this.toastService.error(errorMessage);
       }
     });
   }
