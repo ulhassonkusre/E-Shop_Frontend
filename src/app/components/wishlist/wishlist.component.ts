@@ -3,6 +3,8 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { WishlistService } from '../../services/wishlist.service';
+import { CartService } from '../../services/cart.service';
 import { User } from '../../models/auth.models';
 import { Product } from '../../models/product.models';
 
@@ -12,8 +14,8 @@ import { Product } from '../../models/product.models';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="wishlist-container">
-      <h1>My Wishlist</h1>
-      
+      <h1>My Watchlist</h1>
+
       <div class="wishlist-content">
         <div class="wishlist-sidebar">
           <nav class="wishlist-nav">
@@ -27,7 +29,7 @@ import { Product } from '../../models/product.models';
             </a>
             <a routerLink="/wishlist" routerLinkActive="active" class="nav-item">
               <span class="material-icons">favorite</span>
-              Wishlist
+              Watchlist
             </a>
           </nav>
         </div>
@@ -35,8 +37,8 @@ import { Product } from '../../models/product.models';
         <div class="wishlist-main">
           <div *ngIf="wishlistItems.length === 0" class="no-wishlist">
             <span class="material-icons">favorite_border</span>
-            <h2>Your wishlist is empty</h2>
-            <p>Save items you love to your wishlist</p>
+            <h2>Your watchlist is empty</h2>
+            <p>Save items you love to your watchlist</p>
             <a routerLink="/products" class="btn btn-primary">Browse Products</a>
           </div>
 
@@ -53,11 +55,11 @@ import { Product } from '../../models/product.models';
               <button class="remove-btn" (click)="removeFromWishlist(item.id)">
                 <span class="material-icons">close</span>
               </button>
-              
+
               <div class="product-image">
                 <img [src]="item.imageUrl" [alt]="item.name">
               </div>
-              
+
               <div class="product-info">
                 <span class="product-category">{{ item.category }}</span>
                 <h3 class="product-name">{{ item.name }}</h3>
@@ -198,44 +200,43 @@ import { Product } from '../../models/product.models';
       padding: 20px;
       border: 2px solid #e0e0e0;
       border-radius: 10px;
+      transition: all 0.3s;
       position: relative;
-      transition: border-color 0.3s;
     }
 
     .wishlist-card:hover {
       border-color: #667eea;
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.15);
     }
 
     .remove-btn {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      background: none;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       border: none;
-      color: #999;
+      background: #f5f5f5;
+      color: #666;
       cursor: pointer;
-      padding: 5px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 5px;
       transition: all 0.3s;
+      z-index: 10;
     }
 
     .remove-btn:hover {
-      background: #fee;
-      color: #dc3545;
-    }
-
-    .remove-btn .material-icons {
-      font-size: 20px;
+      background: #ff4444;
+      color: white;
     }
 
     .product-image {
-      width: 200px;
+      width: 100%;
       height: 200px;
-      border-radius: 10px;
       overflow: hidden;
+      border-radius: 5px;
       background: #f5f5f5;
     }
 
@@ -248,7 +249,6 @@ import { Product } from '../../models/product.models';
     .product-info {
       display: flex;
       flex-direction: column;
-      justify-content: center;
     }
 
     .product-category {
@@ -286,16 +286,19 @@ import { Product } from '../../models/product.models';
     }
 
     .product-price {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       color: #667eea;
     }
 
     .btn {
+      padding: 10px 20px;
       border: none;
       border-radius: 5px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.3s;
+      text-decoration: none;
     }
 
     .btn-primary {
@@ -341,61 +344,55 @@ export class WishlistComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private wishlistService: WishlistService,
+    private cartService: CartService
   ) { }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
-      if (user) {
-        this.user = user;
-        this.loadWishlist();
-      }
+      this.user = user;
+      this.loadWishlist();
+    });
+    
+    // Subscribe to wishlist changes
+    this.wishlistService.wishlist$.subscribe(items => {
+      this.wishlistItems = items;
     });
   }
 
   loadWishlist(): void {
-    // Sample wishlist data
-    this.wishlistItems = [
-      {
-        id: 1,
-        name: 'Wireless Headphones',
-        description: 'Premium noise-canceling wireless headphones with 30-hour battery life.',
-        price: 199.99,
-        imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
-        stock: 50,
-        category: 'Electronics'
-      },
-      {
-        id: 3,
-        name: 'Laptop Stand',
-        description: 'Ergonomic aluminum laptop stand for better posture.',
-        price: 49.99,
-        imageUrl: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400',
-        stock: 100,
-        category: 'Accessories'
-      },
-      {
-        id: 10,
-        name: 'Bluetooth Speaker',
-        description: 'Portable Bluetooth speaker with 360-degree sound.',
-        price: 79.99,
-        imageUrl: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400',
-        stock: 70,
-        category: 'Electronics'
-      }
-    ];
+    this.wishlistItems = this.wishlistService.getWishlist();
   }
 
   removeFromWishlist(productId: number): void {
-    this.wishlistItems = this.wishlistItems.filter(item => item.id !== productId);
-    this.toastService.success('Removed from wishlist');
+    this.wishlistService.removeFromWishlist(productId).subscribe({
+      next: () => {
+        this.toastService.success('Removed from watchlist');
+      }
+    });
   }
 
   addToCart(product: Product): void {
-    this.toastService.success(`${product.name} added to cart!`);
+    this.cartService.addToCart({ productId: product.id, quantity: 1 }).subscribe({
+      next: () => {
+        this.toastService.success(`${product.name} added to cart!`);
+      },
+      error: () => {
+        this.toastService.error('Please login to add items to cart');
+      }
+    });
   }
 
   addAllToCart(): void {
-    this.toastService.success(`Added ${this.wishlistItems.length} items to cart!`);
+    let added = 0;
+    this.wishlistItems.forEach(item => {
+      this.cartService.addToCart({ productId: item.id, quantity: 1 }).subscribe({
+        next: () => added++
+      });
+    });
+    setTimeout(() => {
+      this.toastService.success(`Added ${added} items to cart!`);
+    }, 500);
   }
 }

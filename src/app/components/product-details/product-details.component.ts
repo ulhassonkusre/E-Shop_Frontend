@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
 import { ToastService } from '../../services/toast.service';
 import { Product } from '../../models/product.models';
 
@@ -23,6 +24,7 @@ export class ProductDetailsComponent implements OnInit {
     private router: Router,
     private productService: ProductService,
     private cartService: CartService,
+    public wishlistService: WishlistService,
     private toastService: ToastService
   ) { }
 
@@ -70,5 +72,25 @@ export class ProductDetailsComponent implements OnInit {
     if (this.quantity > 1) {
       this.quantity--;
     }
+  }
+
+  toggleWatchlist(product: Product): void {
+    const productName = product.name || 'Product';
+    const wasInWishlist = this.wishlistService.isInWishlist(product.id);
+    
+    this.wishlistService.toggleWishlist(product).subscribe({
+      next: (success) => {
+        if (success) {
+          if (!wasInWishlist) {
+            this.toastService.success(`${productName} added to watchlist!`);
+          } else {
+            this.toastService.info(`${productName} removed from watchlist`);
+          }
+        }
+      },
+      error: () => {
+        this.toastService.error('Failed to update watchlist');
+      }
+    });
   }
 }

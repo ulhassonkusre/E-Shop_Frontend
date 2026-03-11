@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
 import { ToastService } from '../../services/toast.service';
 import { Product } from '../../models/product.models';
 
@@ -25,6 +26,7 @@ export class ProductListComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private cartService: CartService,
+    public wishlistService: WishlistService,
     private toastService: ToastService
   ) { }
 
@@ -75,6 +77,29 @@ export class ProductListComponent implements OnInit {
       },
       error: () => {
         this.toastService.error('Please login to add items to cart');
+      }
+    });
+  }
+
+  toggleWatchlist(event: Event, product: Product): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const productName = product.name || 'Product';
+    const wasInWishlist = this.wishlistService.isInWishlist(product.id);
+    
+    this.wishlistService.toggleWishlist(product).subscribe({
+      next: (success) => {
+        if (success) {
+          if (!wasInWishlist) {
+            this.toastService.success(`${productName} added to watchlist!`);
+          } else {
+            this.toastService.info(`${productName} removed from watchlist`);
+          }
+        }
+      },
+      error: () => {
+        this.toastService.error('Failed to update watchlist');
       }
     });
   }

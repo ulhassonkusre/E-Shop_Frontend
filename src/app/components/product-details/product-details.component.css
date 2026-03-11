@@ -55,6 +55,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px;
+  position: relative;
 }
 
 .product-image-section img {
@@ -62,6 +63,39 @@
   max-height: 500px;
   object-fit: contain;
   border-radius: 10px;
+}
+
+.watchlist-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  color: #ff4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+  z-index: 10;
+}
+
+.watchlist-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.watchlist-btn.active {
+  background: linear-gradient(135deg, #ff4444 0%, #ff6b6b 100%);
+  color: white;
+}
+
+.watchlist-btn .material-icons {
+  font-size: 24px;
 }
 
 .product-info-section {

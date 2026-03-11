@@ -12,13 +12,21 @@
   <div *ngIf="!isLoading && product" class="details-content">
     <div class="product-image-section">
       <img [src]="product.imageUrl" [alt]="product.name" (error)="product.imageUrl = 'https://via.placeholder.com/500?text=No+Image'">
+      <button 
+        class="watchlist-btn" 
+        [class.active]="wishlistService.isInWishlist(product.id)"
+        (click)="toggleWatchlist(product)"
+        title="{{ wishlistService.isInWishlist(product.id) ? 'Remove from watchlist' : 'Add to watchlist' }}"
+      >
+        <span class="material-icons">{{ wishlistService.isInWishlist(product.id) ? 'favorite' : 'favorite_border' }}</span>
+      </button>
     </div>
 
     <div class="product-info-section">
       <span class="product-category">{{ product.category }}</span>
       <h1 class="product-title">{{ product.name }}</h1>
       <p class="product-price">${{ product.price.toFixed(2) }}</p>
-      
+
       <div class="product-description-section">
         <h3>Description</h3>
         <p>{{ product.description }}</p>
@@ -45,8 +53,8 @@
         </div>
       </div>
 
-      <button 
-        class="btn btn-primary btn-add-to-cart" 
+      <button
+        class="btn btn-primary btn-add-to-cart"
         (click)="addToCart()"
         [disabled]="!product || product.stock === 0"
       >

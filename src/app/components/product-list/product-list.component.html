@@ -1,7 +1,7 @@
 <div class="products-container">
   <div class="products-header">
     <h1>Products</h1>
-    
+
     <div class="search-filter">
       <div class="search-box">
         <span class="material-icons search-icon">search</span>
@@ -37,6 +37,14 @@
     <div *ngFor="let product of filteredProducts" class="product-card">
       <div class="product-image">
         <img [src]="product.imageUrl" [alt]="product.name" (error)="product.imageUrl = 'https://via.placeholder.com/300?text=No+Image'">
+        <button 
+          class="watchlist-btn" 
+          [class.active]="wishlistService.isInWishlist(product.id)"
+          (click)="toggleWatchlist($event, product)"
+          title="{{ wishlistService.isInWishlist(product.id) ? 'Remove from watchlist' : 'Add to watchlist' }}"
+        >
+          <span class="material-icons">{{ wishlistService.isInWishlist(product.id) ? 'favorite' : 'favorite_border' }}</span>
+        </button>
       </div>
       <div class="product-info">
         <span class="product-category">{{ product.category }}</span>
