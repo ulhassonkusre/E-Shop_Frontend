@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { OrderService, Order } from '../../services/order.service';
 
 @Component({
   selector: 'app-order-success',
@@ -12,26 +13,26 @@ import { CommonModule } from '@angular/common';
         <div class="success-icon">
           <span class="material-icons">check_circle</span>
         </div>
-        
+
         <h1>Order Placed Successfully!</h1>
-        
+
         <p class="success-message">
           Thank you for your order! Your order has been successfully placed and will be processed shortly.
         </p>
 
-        <div class="order-info">
+        <div *ngIf="order" class="order-info">
           <div class="info-row">
             <span class="material-icons">confirmation_number</span>
             <div>
               <strong>Order Number</strong>
-              <p>#ORD-{{ orderNumber }}</p>
+              <p>#{{ order.id }}</p>
             </div>
           </div>
           <div class="info-row">
             <span class="material-icons">schedule</span>
             <div>
               <strong>Order Date</strong>
-              <p>{{ orderDate | date:'medium' }}</p>
+              <p>{{ order.date | date:'medium' }}</p>
             </div>
           </div>
           <div class="info-row">
@@ -41,6 +42,17 @@ import { CommonModule } from '@angular/common';
               <p>{{ estimatedDelivery | date:'fullDate' }}</p>
             </div>
           </div>
+          <div class="info-row">
+            <span class="material-icons">payments</span>
+            <div>
+              <strong>Order Total</strong>
+              <p>\${{ order.total.toFixed(2) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!order" class="no-order">
+          <p>No order details found. Please continue shopping.</p>
         </div>
 
         <div class="success-actions">
@@ -48,9 +60,9 @@ import { CommonModule } from '@angular/common';
             <span class="material-icons">storefront</span>
             Continue Shopping
           </a>
-          <a routerLink="/cart" class="btn btn-outline">
-            <span class="material-icons">shopping_cart</span>
-            View Cart
+          <a routerLink="/orders" class="btn btn-outline">
+            <span class="material-icons">shopping_bag</span>
+            View My Orders
           </a>
         </div>
       </div>
@@ -133,6 +145,14 @@ import { CommonModule } from '@angular/common';
       padding: 25px;
       margin-bottom: 30px;
       text-align: left;
+    }
+
+    .no-order {
+      background: #fff3cd;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 30px;
+      color: #856404;
     }
 
     .info-row {
@@ -222,16 +242,24 @@ import { CommonModule } from '@angular/common';
     }
   `]
 })
-export class OrderSuccessComponent {
-  orderNumber: string;
-  orderDate: Date;
-  estimatedDelivery: Date;
+export class OrderSuccessComponent implements OnInit {
+  order: Order | null = null;
+  orderNumber: string = '';
+  orderDate: Date = new Date();
+  estimatedDelivery: Date = new Date();
 
-  constructor() {
-    this.orderNumber = this.generateOrderNumber();
-    this.orderDate = new Date();
-    this.estimatedDelivery = new Date();
-    this.estimatedDelivery.setDate(this.estimatedDelivery.getDate() + 7);
+  constructor(private orderService: OrderService) { }
+
+  ngOnInit(): void {
+    this.order = this.orderService.getCurrentOrder();
+    
+    if (this.order) {
+      this.orderNumber = this.order.id;
+      this.orderDate = this.order.date;
+      this.estimatedDelivery.setDate(this.estimatedDelivery.getDate() + 7);
+    } else {
+      this.orderNumber = this.generateOrderNumber();
+    }
   }
 
   private generateOrderNumber(): string {

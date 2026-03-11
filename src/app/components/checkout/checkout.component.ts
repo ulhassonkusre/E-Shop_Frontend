@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../services/cart.service';
+import { OrderService, ShippingInfo } from '../../services/order.service';
 import { ToastService } from '../../services/toast.service';
 import { Cart, CartItem } from '../../models/cart.models';
 
@@ -19,7 +20,7 @@ export class CheckoutComponent implements OnInit {
   isSubmitting = false;
 
   // Shipping form
-  shippingForm = {
+  shippingForm: ShippingInfo = {
     fullName: '',
     email: '',
     phone: '',
@@ -32,6 +33,7 @@ export class CheckoutComponent implements OnInit {
 
   constructor(
     private cartService: CartService,
+    private orderService: OrderService,
     private toastService: ToastService,
     private router: Router
   ) { }
@@ -64,22 +66,52 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    if (!this.cart || this.cart.items.length === 0) {
+      this.toastService.error('Your cart is empty');
+      return;
+    }
+
     this.isSubmitting = true;
 
-    // Simulate order placement (no payment gateway)
-    setTimeout(() => {
-      this.cartService.clearCart().subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          this.toastService.success('Order placed successfully!');
-          this.router.navigate(['/order-success']);
-        },
-        error: () => {
-          this.isSubmitting = false;
-          this.toastService.error('Failed to place order');
-        }
-      });
-    }, 1500);
+    // Prepare order products
+    const orderProducts = this.cart.items.map(item => ({
+      name: item.productName,
+      image: item.productImage,
+      price: item.price,
+      quantity: item.quantity
+    }));
+
+    // Create order
+    const orderData = {
+      total: this.cart.totalAmount,
+      items: this.cart.totalItems,
+      products: orderProducts,
+      shippingInfo: { ...this.shippingForm }
+    };
+
+    // Save order to session storage
+    this.orderService.addOrder(orderData).subscribe({
+      next: (order) => {
+        // Clear cart on backend
+        this.cartService.clearCart().subscribe({
+          next: () => {
+            this.isSubmitting = false;
+            this.toastService.success('Order placed successfully!');
+            this.router.navigate(['/order-success']);
+          },
+          error: () => {
+            this.isSubmitting = false;
+            this.toastService.error('Order placed but failed to clear cart');
+            this.router.navigate(['/order-success']);
+          }
+        });
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        this.toastService.error('Failed to place order');
+        console.error('Order error:', err);
+      }
+    });
   }
 
   validateForm(): boolean {

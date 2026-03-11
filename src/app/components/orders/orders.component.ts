@@ -2,23 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { OrderService, Order } from '../../services/order.service';
 import { User } from '../../models/auth.models';
-
-interface Order {
-  id: string;
-  date: Date;
-  status: 'delivered' | 'processing' | 'shipped' | 'cancelled';
-  total: number;
-  items: number;
-  products: OrderProduct[];
-}
-
-interface OrderProduct {
-  name: string;
-  image: string;
-  price: number;
-  quantity: number;
-}
 
 @Component({
   selector: 'app-orders',
@@ -27,7 +12,7 @@ interface OrderProduct {
   template: `
     <div class="orders-container">
       <h1>My Orders</h1>
-      
+
       <div class="orders-content">
         <div class="orders-sidebar">
           <nav class="orders-nav">
@@ -47,14 +32,19 @@ interface OrderProduct {
         </div>
 
         <div class="orders-main">
-          <div *ngIf="orders.length === 0" class="no-orders">
+          <div *ngIf="isLoading" class="loading">
+            <span class="material-icons spin">sync</span>
+            <p>Loading orders...</p>
+          </div>
+
+          <div *ngIf="!isLoading && orders.length === 0" class="no-orders">
             <span class="material-icons">inventory_2</span>
             <h2>No orders yet</h2>
             <p>Start shopping to see your orders here</p>
             <a routerLink="/products" class="btn btn-primary">Browse Products</a>
           </div>
 
-          <div *ngIf="orders.length > 0" class="orders-list">
+          <div *ngIf="!isLoading && orders.length > 0" class="orders-list">
             <div *ngFor="let order of orders" class="order-card">
               <div class="order-header">
                 <div class="order-info">
@@ -80,8 +70,9 @@ interface OrderProduct {
               <div class="order-footer">
                 <span class="order-total">Total: \${{ order.total.toFixed(2) }}</span>
                 <div class="order-actions">
-                  <button class="btn btn-outline">View Details</button>
-                  <button *ngIf="order.status === 'delivered'" class="btn btn-primary">Reorder</button>
+                  <button class="btn btn-outline" (click)="viewDetails(order)">View Details</button>
+                  <button *ngIf="order.status === 'delivered' || order.status === 'cancelled'" class="btn btn-primary" (click)="reorder(order)">Reorder</button>
+                  <button *ngIf="order.status === 'processing'" class="btn btn-danger" (click)="cancelOrder(order)">Cancel Order</button>
                 </div>
               </div>
             </div>
@@ -152,6 +143,28 @@ interface OrderProduct {
       border-radius: 10px;
       padding: 30px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .loading .material-icons.spin {
+      font-size: 48px;
+      color: #667eea;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .loading p {
+      color: #666;
+      font-size: 16px;
     }
 
     .no-orders {
@@ -338,6 +351,15 @@ interface OrderProduct {
       box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
 
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
     @media (max-width: 768px) {
       .orders-content {
         grid-template-columns: 1fr;
@@ -353,59 +375,72 @@ interface OrderProduct {
         flex-direction: column;
         gap: 15px;
       }
+
+      .order-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .order-actions .btn {
+        flex: 1;
+      }
     }
   `]
 })
 export class OrdersComponent implements OnInit {
   user: User | null = null;
   orders: Order[] = [];
+  isLoading = true;
 
-  constructor(private authService: AuthService) { }
+  constructor(
+    private authService: AuthService,
+    private orderService: OrderService
+  ) { }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
-      if (user) {
-        this.user = user;
-        this.loadOrders();
-      }
+      this.user = user;
+      this.loadOrders();
     });
   }
 
   loadOrders(): void {
-    // Sample orders data
-    this.orders = [
-      {
-        id: 'ORD-001234',
-        date: new Date('2024-01-15'),
-        status: 'delivered',
-        total: 249.98,
-        items: 2,
-        products: [
-          { name: 'Wireless Headphones', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200', price: 199.99, quantity: 1 },
-          { name: 'Phone Stand', image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=200', price: 19.99, quantity: 2 }
-        ]
-      },
-      {
-        id: 'ORD-001235',
-        date: new Date('2024-01-20'),
-        status: 'processing',
-        total: 429.98,
-        items: 2,
-        products: [
-          { name: 'Smart Watch', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200', price: 299.99, quantity: 1 },
-          { name: 'Mechanical Keyboard', image: 'https://images.unsplash.com/photo-1587829741301-dc798b91a603?w=200', price: 129.99, quantity: 1 }
-        ]
-      },
-      {
-        id: 'ORD-001236',
-        date: new Date('2024-01-25'),
-        status: 'shipped',
-        total: 159.98,
-        items: 2,
-        products: [
-          { name: 'Bluetooth Speaker', image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=200', price: 79.99, quantity: 2 }
-        ]
+    this.isLoading = true;
+    // Load orders from session storage
+    const orders = this.orderService.getOrders();
+    this.orders = orders;
+    this.isLoading = false;
+  }
+
+  viewDetails(order: Order): void {
+    // For now, just show an alert with order details
+    const productsList = order.products.map(p => 
+      `${p.name} (x${p.quantity}) - $${(p.price * p.quantity).toFixed(2)}`
+    ).join('\n');
+    
+    alert(`Order #${order.id}\n\n` +
+      `Date: ${order.date.toLocaleString()}\n` +
+      `Status: ${order.status}\n\n` +
+      `Products:\n${productsList}\n\n` +
+      `Total: $${order.total.toFixed(2)}\n\n` +
+      `Shipping to:\n${order.shippingInfo.fullName}\n${order.shippingInfo.address}\n${order.shippingInfo.city}, ${order.shippingInfo.state} ${order.shippingInfo.zipCode}`
+    );
+  }
+
+  reorder(order: Order): void {
+    // Navigate to products page - in a real app, this would add items to cart
+    alert('Reorder functionality would add these items to your cart');
+  }
+
+  cancelOrder(order: Order): void {
+    if (confirm(`Are you sure you want to cancel order #${order.id}?`)) {
+      const success = this.orderService.cancelOrder(order.id);
+      if (success) {
+        order.status = 'cancelled';
+        alert('Order cancelled successfully');
+      } else {
+        alert('Failed to cancel order');
       }
-    ];
+    }
   }
 }
