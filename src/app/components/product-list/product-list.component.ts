@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
+import { ToastService } from '../../services/toast.service';
 import { Product } from '../../models/product.models';
 
 @Component({
@@ -23,7 +24,8 @@ export class ProductListComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private cartService: CartService
+    private cartService: CartService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit(): void {
@@ -69,10 +71,10 @@ export class ProductListComponent implements OnInit {
   addToCart(product: Product): void {
     this.cartService.addToCart({ productId: product.id, quantity: 1 }).subscribe({
       next: () => {
-        alert(`${product.name} added to cart!`);
+        this.toastService.success(`${product.name} added to cart!`);
       },
       error: () => {
-        alert('Please login to add items to cart');
+        this.toastService.error('Please login to add items to cart');
       }
     });
   }

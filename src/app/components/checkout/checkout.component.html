@@ -1,0 +1,172 @@
+<div class="checkout-container">
+  <h1>Checkout</h1>
+
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading checkout...</p>
+  </div>
+
+  <div *ngIf="!isLoading && cart" class="checkout-content">
+    <div class="checkout-form-section">
+      <h2>Shipping Information</h2>
+      <form (ngSubmit)="placeOrder()" #checkoutForm="ngForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullName">Full Name *</label>
+            <input
+              type="text"
+              id="fullName"
+              [(ngModel)]="shippingForm.fullName"
+              name="fullName"
+              placeholder="John Doe"
+              required
+              [disabled]="isSubmitting"
+            />
+          </div>
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="shippingForm.email"
+              name="email"
+              placeholder="john@example.com"
+              required
+              [disabled]="isSubmitting"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Phone *</label>
+            <input
+              type="tel"
+              id="phone"
+              [(ngModel)]="shippingForm.phone"
+              name="phone"
+              placeholder="+1 (555) 123-4567"
+              required
+              [disabled]="isSubmitting"
+            />
+          </div>
+          <div class="form-group">
+            <label for="country">Country *</label>
+            <select
+              id="country"
+              [(ngModel)]="shippingForm.country"
+              name="country"
+              required
+              [disabled]="isSubmitting"
+            >
+              <option value="United States">United States</option>
+              <option value="Canada">Canada</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="Australia">Australia</option>
+              <option value="India">India</option>
+              <option value="Germany">Germany</option>
+              <option value="France">France</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="address">Street Address *</label>
+          <input
+            type="text"
+            id="address"
+            [(ngModel)]="shippingForm.address"
+            name="address"
+            placeholder="123 Main Street, Apt 4B"
+            required
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">City *</label>
+            <input
+              type="text"
+              id="city"
+              [(ngModel)]="shippingForm.city"
+              name="city"
+              placeholder="New York"
+              required
+              [disabled]="isSubmitting"
+            />
+          </div>
+          <div class="form-group">
+            <label for="state">State/Province *</label>
+            <input
+              type="text"
+              id="state"
+              [(ngModel)]="shippingForm.state"
+              name="state"
+              placeholder="NY"
+              required
+              [disabled]="isSubmitting"
+            />
+          </div>
+          <div class="form-group">
+            <label for="zipCode">ZIP/Postal Code *</label>
+            <input
+              type="text"
+              id="zipCode"
+              [(ngModel)]="shippingForm.zipCode"
+              name="zipCode"
+              placeholder="10001"
+              required
+              [disabled]="isSubmitting"
+            />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/cart" class="btn btn-outline">Back to Cart</a>
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'Placing Order...' : 'Place Order' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="order-summary-section">
+      <h2>Order Summary</h2>
+      <div class="order-items">
+        <div *ngFor="let item of cart.items" class="order-item">
+          <img [src]="item.productImage" [alt]="item.productName">
+          <div class="order-item-details">
+            <h4>{{ item.productName }}</h4>
+            <p>Qty: {{ item.quantity }}</p>
+          </div>
+          <span class="order-item-price">${{ item.totalPrice.toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <div class="order-totals">
+        <div class="total-row">
+          <span>Subtotal</span>
+          <span>${{ getTotal().toFixed(2) }}</span>
+        </div>
+        <div class="total-row">
+          <span>Shipping</span>
+          <span class="free">FREE</span>
+        </div>
+        <div class="total-row">
+          <span>Tax</span>
+          <span>$0.00</span>
+        </div>
+        <div class="total-row grand-total">
+          <span>Total</span>
+          <span>${{ getTotal().toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <div class="secure-checkout">
+        <span class="material-icons">security</span>
+        <span>Secure Checkout</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -16,6 +16,8 @@ export class SignupComponent {
   email = '';
   password = '';
   confirmPassword = '';
+  showPassword = false;
+  showConfirmPassword = false;
   errorMessage = '';
   isLoading = false;
 
@@ -63,5 +65,17 @@ export class SignupComponent {
         this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
       }
     });
+  }
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/login']);
   }
 }

@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 export class LoginComponent {
   email = '';
   password = '';
+  showPassword = false;
   errorMessage = '';
   isLoading = false;
 
@@ -41,5 +42,13 @@ export class LoginComponent {
         this.errorMessage = err.error?.message || 'Login failed. Please try again.';
       }
     });
+  }
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  goToSignup(): void {
+    this.router.navigate(['/signup']);
   }
 }

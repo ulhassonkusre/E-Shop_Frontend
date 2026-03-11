@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
+import { ToastService } from '../../services/toast.service';
 import { Product } from '../../models/product.models';
 
 @Component({
@@ -21,7 +22,8 @@ export class ProductDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
-    private cartService: CartService
+    private cartService: CartService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit(): void {
@@ -49,10 +51,10 @@ export class ProductDetailsComponent implements OnInit {
     if (this.product && this.quantity > 0) {
       this.cartService.addToCart({ productId: this.product.id, quantity: this.quantity }).subscribe({
         next: () => {
-          alert(`${this.quantity} x ${this.product?.name} added to cart!`);
+          this.toastService.success(`${this.quantity} x ${this.product?.name} added to cart!`);
         },
         error: () => {
-          alert('Please login to add items to cart');
+          this.toastService.error('Please login to add items to cart');
         }
       });
     }

@@ -32,29 +32,40 @@
 
       <div class="form-group">
         <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          [(ngModel)]="password"
-          name="password"
-          placeholder="Create a password"
-          required
-          minlength="6"
-          [disabled]="isLoading"
-        />
+        <div class="password-input-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Create a password"
+            required
+            minlength="6"
+            [disabled]="isLoading"
+          />
+          <button type="button" class="password-toggle" (click)="togglePassword()" tabindex="-1">
+            <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
       </div>
 
       <div class="form-group">
         <label for="confirmPassword">Confirm Password</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          [(ngModel)]="confirmPassword"
-          name="confirmPassword"
-          placeholder="Confirm your password"
-          required
-          [disabled]="isLoading"
-        />
+        <div class="password-input-wrapper">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            id="confirmPassword"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            placeholder="Confirm your password"
+            required
+            minlength="6"
+            [disabled]="isLoading"
+          />
+          <button type="button" class="password-toggle" (click)="toggleConfirmPassword()" tabindex="-1">
+            <span class="material-icons">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
       </div>
 
       <div *ngIf="errorMessage" class="error-message">
@@ -66,8 +77,9 @@
       </button>
     </form>
 
-    <p class="auth-link">
-      Already have an account? <a routerLink="/login">Login</a>
+    <p class="auth-footer">
+      Already have an account? 
+      <button type="button" class="auth-footer-link" (click)="goToLogin()">Login</button>
     </p>
   </div>
 </div>

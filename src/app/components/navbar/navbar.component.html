@@ -5,7 +5,7 @@
       E-Shop
     </a>
 
-    <div class="navbar-menu">
+    <div class="navbar-menu" *ngIf="!isLoginPage">
       <a routerLink="/products" routerLinkActive="active" class="nav-link">
         <span class="material-icons">storefront</span>
         Products
@@ -19,21 +19,63 @@
     </div>
 
     <div class="navbar-auth">
-      <ng-container *ngIf="!isLoggedIn; else loggedIn">
+      <ng-container *ngIf="!isLoggedIn && !isLoginPage; else loggedIn">
         <a routerLink="/login" class="btn btn-outline">Login</a>
         <a routerLink="/signup" class="btn btn-primary">Sign Up</a>
       </ng-container>
 
       <ng-template #loggedIn>
-        <span class="user-greeting">
-          <span class="material-icons">account_circle</span>
-          {{ user?.username }}
-        </span>
-        <button (click)="logout()" class="btn btn-outline btn-logout">
-          <span class="material-icons">logout</span>
-          Logout
-        </button>
+        <div *ngIf="!isLoginPage" class="user-menu-container" (mouseenter)="toggleUserMenu()" (mouseleave)="hideUserMenu()">
+          <div class="user-avatar-wrapper">
+            <img [src]="getUserAvatar()" [alt]="user?.username" class="user-avatar">
+            <span class="user-name">{{ user?.username }}</span>
+            <span class="material-icons dropdown-icon">expand_more</span>
+          </div>
+          
+          <div class="user-dropdown" *ngIf="showUserMenu">
+            <div class="dropdown-header">
+              <img [src]="getUserAvatar()" [alt]="user?.username" class="dropdown-avatar">
+              <div class="dropdown-user-info">
+                <strong class="dropdown-username">{{ user?.username }}</strong>
+                <span class="dropdown-email">{{ user?.email }}</span>
+              </div>
+            </div>
+            
+            <div class="dropdown-divider"></div>
+            
+            <div class="dropdown-body">
+              <a routerLink="/account" class="dropdown-item">
+                <span class="material-icons">account_circle</span>
+                <span>My Account</span>
+              </a>
+              <a routerLink="/orders" class="dropdown-item">
+                <span class="material-icons">shopping_bag</span>
+                <span>My Orders</span>
+              </a>
+              <a routerLink="/wishlist" class="dropdown-item">
+                <span class="material-icons">favorite</span>
+                <span>Wishlist</span>
+              </a>
+            </div>
+            
+            <div class="dropdown-divider"></div>
+            
+            <div class="dropdown-footer">
+              <button (click)="logout()" class="dropdown-item logout">
+                <span class="material-icons">logout</span>
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </ng-template>
+
+      <ng-container *ngIf="isLoginPage && !isLoggedIn">
+        <span class="login-hint">
+          <span class="material-icons">info</span>
+          Demo: admin&#64;example.com / admin123
+        </span>
+      </ng-container>
     </div>
   </div>
 </nav>
