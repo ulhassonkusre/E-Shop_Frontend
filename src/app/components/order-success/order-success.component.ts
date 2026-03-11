@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OrderService, Order } from '../../services/order.service';
 
@@ -20,19 +20,24 @@ import { OrderService, Order } from '../../services/order.service';
           Thank you for your order! Your order has been successfully placed and will be processed shortly.
         </p>
 
-        <div *ngIf="order" class="order-info">
+        <div *ngIf="isLoading" class="loading-order">
+          <div class="spinner"></div>
+          <p>Loading order details...</p>
+        </div>
+
+        <div *ngIf="!isLoading && order" class="order-info">
           <div class="info-row">
             <span class="material-icons">confirmation_number</span>
             <div>
               <strong>Order Number</strong>
-              <p>#{{ order.id }}</p>
+              <p>#{{ order.orderNumber }}</p>
             </div>
           </div>
           <div class="info-row">
             <span class="material-icons">schedule</span>
             <div>
               <strong>Order Date</strong>
-              <p>{{ order.date | date:'medium' }}</p>
+              <p>{{ order.createdAt | date:'medium' }}</p>
             </div>
           </div>
           <div class="info-row">
@@ -46,12 +51,12 @@ import { OrderService, Order } from '../../services/order.service';
             <span class="material-icons">payments</span>
             <div>
               <strong>Order Total</strong>
-              <p>\${{ order.total.toFixed(2) }}</p>
+              <p>\${{ order.totalAmount.toFixed(2) }}</p>
             </div>
           </div>
         </div>
 
-        <div *ngIf="!order" class="no-order">
+        <div *ngIf="!isLoading && !order" class="no-order">
           <p>No order details found. Please continue shopping.</p>
         </div>
 
@@ -137,6 +142,25 @@ import { OrderService, Order } from '../../services/order.service';
       font-size: 16px;
       line-height: 1.6;
       margin-bottom: 30px;
+    }
+
+    .loading-order {
+      padding: 30px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .order-info {
@@ -244,25 +268,38 @@ import { OrderService, Order } from '../../services/order.service';
 })
 export class OrderSuccessComponent implements OnInit {
   order: Order | null = null;
-  orderNumber: string = '';
+  isLoading = true;
   orderDate: Date = new Date();
   estimatedDelivery: Date = new Date();
 
-  constructor(private orderService: OrderService) { }
+  constructor(
+    private route: ActivatedRoute,
+    private orderService: OrderService
+  ) { }
 
   ngOnInit(): void {
-    this.order = this.orderService.getCurrentOrder();
+    this.estimatedDelivery.setDate(this.estimatedDelivery.getDate() + 7);
     
-    if (this.order) {
-      this.orderNumber = this.order.id;
-      this.orderDate = this.order.date;
-      this.estimatedDelivery.setDate(this.estimatedDelivery.getDate() + 7);
+    const orderId = this.route.snapshot.queryParamMap.get('orderId');
+    if (orderId) {
+      this.loadOrder(+orderId);
     } else {
-      this.orderNumber = this.generateOrderNumber();
+      this.isLoading = false;
     }
   }
 
-  private generateOrderNumber(): string {
-    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  loadOrder(id: number): void {
+    this.isLoading = true;
+    this.orderService.getOrderById(id).subscribe({
+      next: (order) => {
+        this.order = order;
+        this.orderDate = new Date(order.createdAt);
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+        this.order = null;
+      }
+    });
   }
 }

@@ -19,7 +19,6 @@ export class CheckoutComponent implements OnInit {
   isLoading = true;
   isSubmitting = false;
 
-  // Shipping form
   shippingForm: ShippingInfo = {
     fullName: '',
     email: '',
@@ -73,43 +72,22 @@ export class CheckoutComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    // Prepare order products
-    const orderProducts = this.cart.items.map(item => ({
-      name: item.productName,
-      image: item.productImage,
-      price: item.price,
-      quantity: item.quantity
-    }));
-
-    // Create order
-    const orderData = {
-      total: this.cart.totalAmount,
-      items: this.cart.totalItems,
-      products: orderProducts,
-      shippingInfo: { ...this.shippingForm }
-    };
-
-    // Save order to session storage
-    this.orderService.addOrder(orderData).subscribe({
+    // Create order via API
+    this.orderService.createOrder(this.shippingForm).subscribe({
       next: (order) => {
-        // Clear cart on backend
-        this.cartService.clearCart().subscribe({
-          next: () => {
-            this.isSubmitting = false;
-            this.toastService.success('Order placed successfully!');
-            this.router.navigate(['/order-success']);
-          },
-          error: () => {
-            this.isSubmitting = false;
-            this.toastService.error('Order placed but failed to clear cart');
-            this.router.navigate(['/order-success']);
-          }
-        });
+        this.isSubmitting = false;
+        this.toastService.success('Order placed successfully!');
+        // Navigate to order success with order details
+        this.router.navigate(['/order-success'], { queryParams: { orderId: order.id } });
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.toastService.error('Failed to place order');
         console.error('Order error:', err);
+        if (err.status === 400) {
+          this.toastService.error(err.error || 'Failed to place order');
+        } else {
+          this.toastService.error('Failed to place order. Please try again.');
+        }
       }
     });
   }

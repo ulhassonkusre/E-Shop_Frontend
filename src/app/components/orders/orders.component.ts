@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { OrderService, Order } from '../../services/order.service';
+import { ToastService } from '../../services/toast.service';
 import { User } from '../../models/auth.models';
 
 @Component({
@@ -26,14 +27,14 @@ import { User } from '../../models/auth.models';
             </a>
             <a routerLink="/wishlist" class="nav-item">
               <span class="material-icons">favorite</span>
-              Wishlist
+              Watchlist
             </a>
           </nav>
         </div>
 
         <div class="orders-main">
           <div *ngIf="isLoading" class="loading">
-            <span class="material-icons spin">sync</span>
+            <div class="spinner"></div>
             <p>Loading orders...</p>
           </div>
 
@@ -48,19 +49,19 @@ import { User } from '../../models/auth.models';
             <div *ngFor="let order of orders" class="order-card">
               <div class="order-header">
                 <div class="order-info">
-                  <span class="order-id">Order #{{ order.id }}</span>
-                  <span class="order-date">{{ order.date | date:'medium' }}</span>
+                  <span class="order-id">Order #{{ order.orderNumber }}</span>
+                  <span class="order-date">{{ order.createdAt | date:'medium' }}</span>
                 </div>
-                <span class="order-status status-{{ order.status }}">
+                <span class="order-status status-{{ order.status.toLowerCase() }}">
                   {{ order.status | titlecase }}
                 </span>
               </div>
 
               <div class="order-products">
-                <div *ngFor="let product of order.products" class="order-product">
-                  <img [src]="product.image" [alt]="product.name">
+                <div *ngFor="let product of order.items" class="order-product">
+                  <img [src]="product.productImage" [alt]="product.productName">
                   <div class="product-details">
-                    <h4>{{ product.name }}</h4>
+                    <h4>{{ product.productName }}</h4>
                     <p>Qty: {{ product.quantity }}</p>
                   </div>
                   <span class="product-price">\${{ (product.price * product.quantity).toFixed(2) }}</span>
@@ -68,11 +69,11 @@ import { User } from '../../models/auth.models';
               </div>
 
               <div class="order-footer">
-                <span class="order-total">Total: \${{ order.total.toFixed(2) }}</span>
+                <span class="order-total">Total: \${{ order.totalAmount.toFixed(2) }}</span>
                 <div class="order-actions">
                   <button class="btn btn-outline" (click)="viewDetails(order)">View Details</button>
-                  <button *ngIf="order.status === 'delivered' || order.status === 'cancelled'" class="btn btn-primary" (click)="reorder(order)">Reorder</button>
-                  <button *ngIf="order.status === 'processing'" class="btn btn-danger" (click)="cancelOrder(order)">Cancel Order</button>
+                  <button *ngIf="order.status.toLowerCase() === 'delivered' || order.status.toLowerCase() === 'cancelled'" class="btn btn-primary" (click)="reorder(order)">Reorder</button>
+                  <button *ngIf="order.status.toLowerCase() === 'processing'" class="btn btn-danger" (click)="cancelOrder(order)">Cancel Order</button>
                 </div>
               </div>
             </div>
@@ -150,16 +151,19 @@ import { User } from '../../models/auth.models';
       padding: 60px 20px;
     }
 
-    .loading .material-icons.spin {
-      font-size: 48px;
-      color: #667eea;
+    .loading .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin-bottom: 15px;
+      margin: 0 auto 20px;
     }
 
     @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .loading p {
@@ -394,7 +398,8 @@ export class OrdersComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit(): void {
@@ -406,41 +411,47 @@ export class OrdersComponent implements OnInit {
 
   loadOrders(): void {
     this.isLoading = true;
-    // Load orders from session storage
-    const orders = this.orderService.getOrders();
-    this.orders = orders;
-    this.isLoading = false;
+    this.orderService.getOrders().subscribe({
+      next: (orders) => {
+        this.orders = orders;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+        this.toastService.error('Failed to load orders');
+      }
+    });
   }
 
   viewDetails(order: Order): void {
-    // For now, just show an alert with order details
-    const productsList = order.products.map(p => 
-      `${p.name} (x${p.quantity}) - $${(p.price * p.quantity).toFixed(2)}`
+    const productsList = order.items.map(p => 
+      `${p.productName} (x${p.quantity}) - $${(p.price * p.quantity).toFixed(2)}`
     ).join('\n');
     
-    alert(`Order #${order.id}\n\n` +
-      `Date: ${order.date.toLocaleString()}\n` +
+    alert(`Order #${order.orderNumber}\n\n` +
+      `Date: ${new Date(order.createdAt).toLocaleString()}\n` +
       `Status: ${order.status}\n\n` +
       `Products:\n${productsList}\n\n` +
-      `Total: $${order.total.toFixed(2)}\n\n` +
-      `Shipping to:\n${order.shippingInfo.fullName}\n${order.shippingInfo.address}\n${order.shippingInfo.city}, ${order.shippingInfo.state} ${order.shippingInfo.zipCode}`
+      `Total: $${order.totalAmount.toFixed(2)}\n\n` +
+      `Shipping to:\n${order.shippingFullName}\n${order.shippingAddress}\n${order.shippingCity}, ${order.shippingState} ${order.shippingZipCode}`
     );
   }
 
   reorder(order: Order): void {
-    // Navigate to products page - in a real app, this would add items to cart
-    alert('Reorder functionality would add these items to your cart');
+    this.toastService.info('Reorder functionality - items would be added to cart');
   }
 
   cancelOrder(order: Order): void {
-    if (confirm(`Are you sure you want to cancel order #${order.id}?`)) {
-      const success = this.orderService.cancelOrder(order.id);
-      if (success) {
-        order.status = 'cancelled';
-        alert('Order cancelled successfully');
-      } else {
-        alert('Failed to cancel order');
-      }
+    if (confirm(`Are you sure you want to cancel order #${order.orderNumber}?`)) {
+      this.orderService.cancelOrder(order.id).subscribe({
+        next: () => {
+          order.status = 'Cancelled';
+          this.toastService.success('Order cancelled successfully');
+        },
+        error: () => {
+          this.toastService.error('Failed to cancel order');
+        }
+      });
     }
   }
 }
