@@ -76,6 +76,8 @@ export class CheckoutComponent implements OnInit {
     this.orderService.createOrder(this.shippingForm).subscribe({
       next: (order) => {
         this.isSubmitting = false;
+        // Clear cart after successful order
+        this.cartService.clearCart().subscribe();
         this.toastService.success('Order placed successfully!');
         // Navigate to order success with order details
         this.router.navigate(['/order-success'], { queryParams: { orderId: order.id } });

@@ -37,7 +37,7 @@ import { OrderService, Order } from '../../services/order.service';
             <span class="material-icons">schedule</span>
             <div>
               <strong>Order Date</strong>
-              <p>{{ order.createdAt | date:'medium' }}</p>
+              <p>{{ order.createdAt | date:'yyyy-MM-dd HH:mm:ss' }}</p>
             </div>
           </div>
           <div class="info-row">

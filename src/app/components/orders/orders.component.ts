@@ -50,7 +50,7 @@ import { User } from '../../models/auth.models';
               <div class="order-header">
                 <div class="order-info">
                   <span class="order-id">Order #{{ order.orderNumber }}</span>
-                  <span class="order-date">{{ order.createdAt | date:'medium' }}</span>
+                  <span class="order-date">{{ order.createdAt | date:'yyyy-MM-dd HH:mm:ss' }}</span>
                 </div>
                 <span class="order-status status-{{ order.status.toLowerCase() }}">
                   {{ order.status | titlecase }}
