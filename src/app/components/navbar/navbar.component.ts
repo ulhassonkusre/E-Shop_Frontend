@@ -3,6 +3,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
+import { ToastService } from '../../services/toast.service';
 import { User } from '../../models/auth.models';
 
 @Component({
@@ -22,13 +23,14 @@ export class NavbarComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private cartService: CartService,
+    private toastService: ToastService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     // Check if current route is login page
     this.updateLoginPageStatus();
-    
+
     // Listen for route changes
     this.router.events.subscribe(() => {
       this.updateLoginPageStatus();
@@ -56,6 +58,7 @@ export class NavbarComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.showUserMenu = false;
+    this.toastService.success('Logout successfully');
     this.router.navigate(['/login']);
   }
 

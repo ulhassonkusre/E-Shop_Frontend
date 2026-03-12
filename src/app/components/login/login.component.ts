@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -17,11 +17,16 @@ export class LoginComponent {
   showPassword = false;
   errorMessage = '';
   isLoading = false;
+  returnUrl = '';
 
   constructor(
     private authService: AuthService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
+    // Get the return URL from query params
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
+  }
 
   onSubmit(): void {
     if (!this.email || !this.password) {
@@ -35,7 +40,9 @@ export class LoginComponent {
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/products']);
+        // Redirect to the intended URL or default to products
+        const redirectUrl = this.returnUrl || '/products';
+        this.router.navigateByUrl(redirectUrl);
       },
       error: (err) => {
         this.isLoading = false;
@@ -50,5 +57,9 @@ export class LoginComponent {
 
   goToSignup(): void {
     this.router.navigate(['/signup']);
+  }
+
+  goToForgotPassword(): void {
+    this.router.navigate(['/forgot-password']);
   }
 }

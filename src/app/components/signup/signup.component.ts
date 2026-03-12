@@ -21,6 +21,39 @@ export class SignupComponent {
   errorMessage = '';
   isLoading = false;
 
+  get passwordsMatch(): boolean {
+    return this.confirmPassword !== '' && this.password === this.confirmPassword;
+  }
+
+  get passwordStrength(): number {
+    const pwd = this.password;
+    if (!pwd) return 0;
+    
+    let strength = 0;
+    if (pwd.length >= 6) strength += 20;
+    if (pwd.length >= 8) strength += 20;
+    if (/[a-z]/.test(pwd)) strength += 20;
+    if (/[A-Z]/.test(pwd)) strength += 20;
+    if (/[0-9]/.test(pwd)) strength += 20;
+    if (/[^a-zA-Z0-9]/.test(pwd)) strength += 20;
+    
+    return Math.min(strength, 100);
+  }
+
+  get strengthColor(): string {
+    const strength = this.passwordStrength;
+    if (strength < 40) return '#dc3545';
+    if (strength < 70) return '#ffc107';
+    return '#28a745';
+  }
+
+  get strengthText(): string {
+    const strength = this.passwordStrength;
+    if (strength < 40) return 'Weak';
+    if (strength < 70) return 'Medium';
+    return 'Strong';
+  }
+
   constructor(
     private authService: AuthService,
     private router: Router
@@ -45,20 +78,14 @@ export class SignupComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.authService.register({ 
-      username: this.username, 
-      email: this.email, 
-      password: this.password 
+    this.authService.register({
+      username: this.username,
+      email: this.email,
+      password: this.password
     }).subscribe({
       next: (response) => {
         this.isLoading = false;
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify({
-          id: response.userId,
-          username: response.username,
-          email: response.email
-        }));
-        this.router.navigate(['/products']);
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         this.isLoading = false;
