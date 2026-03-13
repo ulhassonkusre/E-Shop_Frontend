@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ImageCacheService } from './image-cache.service';
 
 export interface Order {
   id: number;
@@ -46,7 +48,10 @@ export interface ShippingInfo {
 export class OrderService {
   private apiUrl = 'http://localhost:5000/api/orders';
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private imageCacheService: ImageCacheService
+  ) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -60,14 +65,30 @@ export class OrderService {
    * Get all orders for the current user
    */
   getOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(this.apiUrl, { headers: this.getHeaders() });
+    return this.http.get<Order[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
+      map(orders => orders.map(order => ({
+        ...order,
+        items: order.items.map(item => ({
+          ...item,
+          productImage: this.imageCacheService.addCacheBuster(item.productImage)
+        }))
+      })))
+    );
   }
 
   /**
    * Get order by ID
    */
   getOrderById(id: number): Observable<Order> {
-    return this.http.get<Order>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.get<Order>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
+      map(order => ({
+        ...order,
+        items: order.items.map(item => ({
+          ...item,
+          productImage: this.imageCacheService.addCacheBuster(item.productImage)
+        }))
+      }))
+    );
   }
 
   /**

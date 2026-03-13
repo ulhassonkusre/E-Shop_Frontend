@@ -356,7 +356,7 @@ export class WishlistComponent implements OnInit {
     });
     
     // Subscribe to wishlist changes
-    this.wishlistService.wishlist$.subscribe(items => {
+    this.wishlistService.wishlistSubject$.subscribe(items => {
       this.wishlistItems = items;
     });
   }

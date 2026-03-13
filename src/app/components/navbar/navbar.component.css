@@ -133,6 +133,38 @@
   font-size: 22px;
 }
 
+/* Refresh Images Button */
+.refresh-images-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #e0e0e0;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  margin-right: 15px;
+}
+
+.refresh-images-btn:hover {
+  background: var(--theme-gradient);
+  border-color: transparent;
+  transform: rotate(180deg);
+}
+
+.refresh-images-btn .material-icons {
+  color: var(--theme-primary);
+  font-size: 22px;
+  transition: color 0.3s;
+}
+
+.refresh-images-btn:hover .material-icons {
+  color: white;
+}
+
 .theme-selector-dropdown {
   position: absolute;
   top: 100%;

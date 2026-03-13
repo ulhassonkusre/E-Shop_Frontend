@@ -21,7 +21,7 @@
     <div class="navbar-actions">
       <!-- Theme Selector -->
       <div *ngIf="!isLoginPage" class="theme-selector-container" (mouseenter)="toggleThemeSelector()" (mouseleave)="closeThemeSelector()">
-        <button 
+        <button
           class="theme-selector-btn"
           title="Change Theme Color"
           [style.background]="currentTheme?.gradient"
@@ -34,10 +34,10 @@
             <span class="material-icons">palette</span>
             <span>Choose Theme</span>
           </div>
-          
+
           <div class="theme-options">
-            <button 
-              *ngFor="let theme of themes" 
+            <button
+              *ngFor="let theme of themes"
               class="theme-option"
               [class.active]="currentTheme?.name === theme.config.name"
               [style.background]="theme.config.gradient"
@@ -51,6 +51,11 @@
           </div>
         </div>
       </div>
+
+      <!-- Refresh Images Button -->
+      <button *ngIf="!isLoginPage && isLoggedIn" class="refresh-images-btn" (click)="refreshImages()" title="Refresh Image Cache">
+        <span class="material-icons">refresh</span>
+      </button>
 
       <div class="navbar-auth">
         <ng-container *ngIf="!isLoggedIn && !isLoginPage; else loggedIn">

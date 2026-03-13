@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Product, CreateProductDto, UpdateProductDto } from '../models/product.models';
+import { ImageCacheService } from './image-cache.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +11,10 @@ import { Product, CreateProductDto, UpdateProductDto } from '../models/product.m
 export class ProductService {
   private apiUrl = 'http://localhost:5000/api/products';
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private imageCacheService: ImageCacheService
+  ) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -20,14 +25,24 @@ export class ProductService {
   }
 
   getAll(searchTerm?: string): Observable<Product[]> {
-    const url = searchTerm 
+    const url = searchTerm
       ? `${this.apiUrl}?search=${encodeURIComponent(searchTerm)}`
       : this.apiUrl;
-    return this.http.get<Product[]>(url);
+    return this.http.get<Product[]>(url).pipe(
+      map(products => products.map(product => ({
+        ...product,
+        imageUrl: this.imageCacheService.addCacheBuster(product.imageUrl)
+      })))
+    );
   }
 
   getById(id: number): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+    return this.http.get<Product>(`${this.apiUrl}/${id}`).pipe(
+      map(product => ({
+        ...product,
+        imageUrl: this.imageCacheService.addCacheBuster(product.imageUrl)
+      }))
+    );
   }
 
   create(dto: CreateProductDto): Observable<Product> {

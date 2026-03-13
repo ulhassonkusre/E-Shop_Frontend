@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map } from 'rxjs/operators';
 import { Cart, AddToCartDto, UpdateCartItemDto } from '../models/cart.models';
+import { ImageCacheService } from './image-cache.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,10 @@ export class CartService {
   private cartSubject = new BehaviorSubject<Cart | null>(null);
   public cart$ = this.cartSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private imageCacheService: ImageCacheService
+  ) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -24,6 +28,13 @@ export class CartService {
 
   getCart(): Observable<Cart> {
     return this.http.get<Cart>(this.apiUrl, { headers: this.getHeaders() }).pipe(
+      map(cart => ({
+        ...cart,
+        items: cart.items.map(item => ({
+          ...item,
+          productImage: this.imageCacheService.addCacheBuster(item.productImage)
+        }))
+      })),
       tap(cart => this.cartSubject.next(cart))
     );
   }

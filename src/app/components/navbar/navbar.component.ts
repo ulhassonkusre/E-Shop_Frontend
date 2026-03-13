@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { ToastService } from '../../services/toast.service';
 import { ThemeService, ThemeColor, ThemeConfig } from '../../services/theme.service';
+import { ImageCacheService } from '../../services/image-cache.service';
 import { User } from '../../models/auth.models';
 
 @Component({
@@ -29,6 +30,7 @@ export class NavbarComponent implements OnInit {
     private cartService: CartService,
     private toastService: ToastService,
     private themeService: ThemeService,
+    private imageCacheService: ImageCacheService,
     private router: Router
   ) { }
 
@@ -103,5 +105,13 @@ export class NavbarComponent implements OnInit {
   getUserAvatar(): string {
     const name = this.user?.username || 'User';
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=128&background=667eea&color=fff&bold=true`;
+  }
+
+  refreshImages(): void {
+    this.imageCacheService.clearCache();
+    this.toastService.success('Image cache cleared! Refreshing...');
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   }
 }
