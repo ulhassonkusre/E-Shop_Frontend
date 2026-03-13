@@ -18,64 +18,92 @@
       </a>
     </div>
 
-    <div class="navbar-auth">
-      <ng-container *ngIf="!isLoggedIn && !isLoginPage; else loggedIn">
-        <a routerLink="/login" class="btn btn-outline">Login</a>
-        <a routerLink="/signup" class="btn btn-primary">Sign Up</a>
-      </ng-container>
+    <div class="navbar-actions">
+      <!-- Theme Selector -->
+      <div *ngIf="!isLoginPage" class="theme-selector-container" (mouseenter)="toggleThemeSelector()" (mouseleave)="closeThemeSelector()">
+        <button 
+          class="theme-selector-btn"
+          title="Change Theme Color"
+          [style.background]="currentTheme?.gradient"
+        >
+          <span class="material-icons">palette</span>
+        </button>
 
-      <ng-template #loggedIn>
-        <div *ngIf="!isLoginPage" class="user-menu-container" (mouseenter)="toggleUserMenu()" (mouseleave)="hideUserMenu()">
-          <div class="user-avatar-wrapper">
-            <img [src]="getUserAvatar()" [alt]="user?.username" class="user-avatar">
-            <span class="user-name">{{ user?.username }}</span>
-            <span class="material-icons dropdown-icon">expand_more</span>
+        <div class="theme-selector-dropdown" *ngIf="showThemeSelector">
+          <div class="theme-selector-header">
+            <span class="material-icons">palette</span>
+            <span>Choose Theme</span>
           </div>
           
-          <div class="user-dropdown" *ngIf="showUserMenu">
-            <div class="dropdown-header">
-              <img [src]="getUserAvatar()" [alt]="user?.username" class="dropdown-avatar">
-              <div class="dropdown-user-info">
-                <strong class="dropdown-username">{{ user?.username }}</strong>
-                <span class="dropdown-email">{{ user?.email }}</span>
-              </div>
-            </div>
-            
-            <div class="dropdown-divider"></div>
-            
-            <div class="dropdown-body">
-              <a routerLink="/account" class="dropdown-item">
-                <span class="material-icons">account_circle</span>
-                <span>My Account</span>
-              </a>
-              <a routerLink="/orders" class="dropdown-item">
-                <span class="material-icons">shopping_bag</span>
-                <span>My Orders</span>
-              </a>
-              <a routerLink="/wishlist" class="dropdown-item">
-                <span class="material-icons">favorite</span>
-                <span>Wishlist</span>
-              </a>
-            </div>
-            
-            <div class="dropdown-divider"></div>
-            
-            <div class="dropdown-footer">
-              <button (click)="logout()" class="dropdown-item logout">
-                <span class="material-icons">logout</span>
-                <span>Logout</span>
-              </button>
-            </div>
+          <div class="theme-options">
+            <button 
+              *ngFor="let theme of themes" 
+              class="theme-option"
+              [class.active]="currentTheme?.name === theme.config.name"
+              [style.background]="theme.config.gradient"
+              (click)="selectTheme(theme.key)"
+              [title]="theme.config.name + ' Theme'"
+            >
+              <span class="material-icons">{{ theme.config.icon }}</span>
+              <span class="theme-name">{{ theme.config.name }}</span>
+              <span *ngIf="currentTheme?.name === theme.config.name" class="material-icons check-icon">check_circle</span>
+            </button>
           </div>
         </div>
-      </ng-template>
+      </div>
 
-      <!-- <ng-container *ngIf="isLoginPage && !isLoggedIn">
-        <span class="login-hint">
-          <span class="material-icons">info</span>
-          Demo: admin&#64;example.com / admin123
-        </span>
-      </ng-container> -->
+      <div class="navbar-auth">
+        <ng-container *ngIf="!isLoggedIn && !isLoginPage; else loggedIn">
+          <a routerLink="/login" class="btn btn-outline">Login</a>
+          <a routerLink="/signup" class="btn btn-primary">Sign Up</a>
+        </ng-container>
+
+        <ng-template #loggedIn>
+          <div *ngIf="!isLoginPage" class="user-menu-container" (mouseenter)="toggleUserMenu()" (mouseleave)="hideUserMenu()">
+            <div class="user-avatar-wrapper">
+              <img [src]="getUserAvatar()" [alt]="user?.username" class="user-avatar">
+              <span class="user-name">{{ user?.username }}</span>
+              <span class="material-icons dropdown-icon">expand_more</span>
+            </div>
+
+            <div class="user-dropdown" *ngIf="showUserMenu">
+              <div class="dropdown-header">
+                <img [src]="getUserAvatar()" [alt]="user?.username" class="dropdown-avatar">
+                <div class="dropdown-user-info">
+                  <strong class="dropdown-username">{{ user?.username }}</strong>
+                  <span class="dropdown-email">{{ user?.email }}</span>
+                </div>
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              <div class="dropdown-body">
+                <a routerLink="/account" class="dropdown-item">
+                  <span class="material-icons">account_circle</span>
+                  <span>My Account</span>
+                </a>
+                <a routerLink="/orders" class="dropdown-item">
+                  <span class="material-icons">shopping_bag</span>
+                  <span>My Orders</span>
+                </a>
+                <a routerLink="/wishlist" class="dropdown-item">
+                  <span class="material-icons">favorite</span>
+                  <span>Wishlist</span>
+                </a>
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              <div class="dropdown-footer">
+                <button (click)="logout()" class="dropdown-item logout">
+                  <span class="material-icons">logout</span>
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
     </div>
   </div>
 </nav>

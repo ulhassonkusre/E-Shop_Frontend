@@ -1,3 +1,12 @@
+/* ===== CSS Custom Properties for Theme Colors ===== */
+:root {
+  --theme-primary: #667eea;
+  --theme-secondary: #764ba2;
+  --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --theme-light: #f0f7ff;
+}
+
+/* ===== Light Mode (Default) ===== */
 * {
   margin: 0;
   padding: 0;
@@ -8,6 +17,7 @@ body {
   font-family: 'Roboto', sans-serif;
   background-color: #f5f5f5;
   color: #333;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -31,3 +41,197 @@ button {
 .mb-1 { margin-bottom: 0.5rem; }
 .mb-2 { margin-bottom: 1rem; }
 .mb-3 { margin-bottom: 1.5rem; }
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-primary);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-secondary);
+}
+
+/* Selection */
+::selection {
+  background: var(--theme-primary);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--theme-primary);
+  color: white;
+}
+
+/* Links */
+a {
+  color: var(--theme-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--theme-secondary);
+}
+
+/* Form inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  background-color: white;
+  border: 2px solid #e0e0e0;
+  color: #333;
+  transition: border-color 0.3s;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #999;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--theme-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--theme-light);
+}
+
+/* Cards */
+.card,
+.product-card,
+.cart-item {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover,
+.product-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Tables */
+table {
+  background-color: white;
+  border-color: #e0e0e0;
+}
+
+th,
+td {
+  border-color: #e0e0e0;
+}
+
+tr:hover {
+  background-color: var(--theme-light);
+}
+
+/* Modal/Dialog */
+.modal-content,
+.dialog-content {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+}
+
+/* Toast notifications */
+.toast {
+  background-color: white;
+  color: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid var(--theme-primary);
+}
+
+/* Loading spinners */
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--theme-primary);
+  border-radius: 50%;
+}
+
+/* Buttons */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: var(--theme-gradient);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-outline {
+  border-color: var(--theme-primary);
+  color: var(--theme-primary);
+}
+
+.btn-outline:hover {
+  background: var(--theme-primary);
+  color: white;
+}
+
+/* Hover effects */
+.hover-effect:hover {
+  background-color: var(--theme-light);
+}
+
+/* Active states */
+.active-state {
+  background: var(--theme-gradient);
+  color: white;
+}
+
+/* Badges */
+.badge {
+  background: var(--theme-primary);
+  color: white;
+}
+
+/* Page headers */
+.page-header {
+  border-bottom: 3px solid var(--theme-primary);
+}
+
+/* Section titles */
+.section-title {
+  color: var(--theme-primary);
+}
+
+/* Price tags */
+.price {
+  color: var(--theme-primary);
+  font-weight: 700;
+}
+
+/* Success messages */
+.success-message {
+  color: #4CAF50;
+  border-left-color: #4CAF50;
+}
+
+/* Error messages */
+.error-message {
+  color: #F44336;
+  border-left-color: #F44336;
+}
+
+/* Warning messages */
+.warning-message {
+  color: #FF9800;
+  border-left-color: #FF9800;
+}
+

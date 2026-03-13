@@ -1,9 +1,18 @@
+/* ===== CSS Custom Properties for Theme Colors ===== */
+:root {
+  --theme-primary: #667eea;
+  --theme-secondary: #764ba2;
+  --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --theme-light: #f0f7ff;
+}
+
 .navbar {
   background: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .navbar-container {
@@ -21,17 +30,24 @@
   gap: 10px;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #667eea;
+  background: var(--theme-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-decoration: none;
-  transition: color 0.3s;
+  transition: opacity 0.3s;
 }
 
 .navbar-brand:hover {
-  color: #764ba2;
+  opacity: 0.8;
 }
 
 .navbar-brand .material-icons {
   font-size: 28px;
+  background: var(--theme-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .navbar-menu {
@@ -53,11 +69,11 @@
 
 .nav-link:hover {
   background: #f5f5f5;
-  color: #667eea;
+  color: var(--theme-primary);
 }
 
 .nav-link.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--theme-gradient);
   color: white;
 }
 
@@ -81,26 +97,152 @@
   justify-content: center;
 }
 
-.navbar-auth {
+/* Navbar Actions */
+.navbar-actions {
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-.login-hint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: #f0f7ff;
-  color: #0066cc;
-  border-radius: 25px;
-  font-size: 14px;
-  font-weight: 500;
+/* Theme Selector */
+.theme-selector-container {
+  position: relative;
 }
 
-.login-hint .material-icons {
-  font-size: 18px;
+.theme-selector-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.theme-selector-btn:hover {
+  transform: scale(1.1) rotate(15deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.theme-selector-btn .material-icons {
+  color: white;
+  font-size: 22px;
+}
+
+.theme-selector-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  width: 280px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: dropdownSlide 0.2s ease-out;
+  z-index: 1001;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.theme-selector-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 20px;
+  background: var(--theme-gradient);
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.theme-selector-header .material-icons {
+  font-size: 22px;
+}
+
+.theme-options {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.theme-option:hover::before {
+  opacity: 1;
+}
+
+.theme-option .material-icons {
+  color: white;
+  font-size: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.theme-name {
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  flex: 1;
+  text-align: left;
+  position: relative;
+  z-index: 1;
+}
+
+.check-icon {
+  color: white !important;
+  font-size: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.theme-option.active {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.02);
+}
+
+/* Auth Section */
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .user-menu-container {
@@ -159,23 +301,12 @@
   z-index: 1001;
 }
 
-@keyframes dropdownSlide {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .dropdown-header {
   display: flex;
   align-items: center;
   gap: 15px;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--theme-gradient);
 }
 
 .dropdown-avatar {
@@ -229,12 +360,12 @@
 
 .dropdown-item:hover {
   background: #f5f5f5;
-  color: #667eea;
+  color: var(--theme-primary);
 }
 
 .dropdown-item .material-icons {
   font-size: 20px;
-  color: #667eea;
+  color: var(--theme-primary);
 }
 
 .dropdown-footer {
@@ -254,18 +385,6 @@
   background: #fee;
 }
 
-.user-greeting {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #666;
-  font-weight: 500;
-}
-
-.user-greeting .material-icons {
-  color: #667eea;
-}
-
 .btn {
   padding: 10px 20px;
   border: none;
@@ -281,17 +400,17 @@
 
 .btn-outline {
   background: transparent;
-  border: 2px solid #667eea;
-  color: #667eea;
+  border: 2px solid var(--theme-primary);
+  color: var(--theme-primary);
 }
 
 .btn-outline:hover {
-  background: #667eea;
+  background: var(--theme-primary);
   color: white;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--theme-gradient);
   color: white;
 }
 
@@ -327,7 +446,7 @@
     display: none;
   }
 
-  .navbar-auth {
+  .navbar-actions {
     gap: 10px;
   }
 
@@ -345,5 +464,23 @@
 
   .btn span:not(.material-icons) {
     display: none;
+  }
+
+  .theme-selector-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .theme-selector-btn .material-icons {
+    font-size: 20px;
+  }
+
+  .theme-selector-dropdown {
+    right: -100px;
+    width: 260px;
+  }
+
+  .theme-options {
+    grid-template-columns: 1fr;
   }
 }

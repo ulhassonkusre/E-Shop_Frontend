@@ -38,7 +38,7 @@ export class ProductListComponent implements OnInit {
   loadProducts(): void {
     this.isLoading = true;
     this.cdr.detectChanges();
-    
+
     this.productService.getAll().subscribe({
       next: (products) => {
         this.products = products;
@@ -60,7 +60,7 @@ export class ProductListComponent implements OnInit {
     if (this.searchTerm.trim()) {
       this.isLoading = true;
       this.cdr.detectChanges();
-      
+
       this.productService.getAll(this.searchTerm).subscribe({
         next: (products) => {
           this.filteredProducts = products;
